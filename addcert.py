@@ -14,6 +14,9 @@ from nssrc.com.citrix.netscaler.nitro.exception.nitro_exception import nitro_exc
 # Used to upload the cert & key
 from nssrc.com.citrix.netscaler.nitro.resource.config.system.systemfile import systemfile
 
+#Used to create keyfile
+from nssrc.com.citrix.netscaler.nitro.resource.config.ssl.sslcertkey import sslcertkey
+
 def checkfile(filename):
   if(not os.path.isfile(filename)):
     sys.exit("File %s does not exist" % filename)
@@ -32,6 +35,20 @@ def uploadfile(srcfile,dstfile):
   except nitro_exception as  e:
     print("Exception::errorcode="+str(e.errorcode)+",message="+ e.message)
 
+def create_certkey(u,k,c):
+  s = sslcertkey()
+  s.certkey='sni_%s' %u
+  s.key = '/nsconfig/ssl/snicerts/%s' %k
+  s.cert = '/nsconfig/ssl/snicerts/%s' %c
+  s.expirymonitor = 'ENABLED'
+  s.notificationperiod = 30
+  s.linkcertkeyname = 'bundle'
+  try:
+    sslcertkey.add(session,s)
+  except nitro_exception as  e:
+    print("Exception::errorcode="+str(e.errorcode)+",message="+ e.message)
+
+  
 
 def logout():
   print("Logging out")
@@ -64,7 +81,9 @@ def main(arguments):
   configfile= checkfile(args.config)
   url = args.url
   keyfile = checkfile(args.keyfile)
+  keyfilename = "%s.key" %url
   certfile = checkfile(args.certfile)
+  certfilename = "%s.cert" %url
 
   config = ConfigParser.ConfigParser()
   config.read(configfile)
@@ -76,8 +95,9 @@ def main(arguments):
   session = connect(nsip,username,password)
 
   ###TODO Verify cert & key are valid
-  uploadfile(keyfile,"%s.key" %url)
-  uploadfile(certfile,"%s.cert" %url)
+  uploadfile(keyfile,keyfilename)
+  uploadfile(certfile,certfilename)
+  create_certkey(url,keyfilename,certfilename)
 
 
 
