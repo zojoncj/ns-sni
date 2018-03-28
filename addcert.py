@@ -4,6 +4,9 @@ import argparse
 import sys,os
 import ConfigParser
 
+#file contents has to be base64 
+import base64
+
 # Used to connect to the device
 from nssrc.com.citrix.netscaler.nitro.service.nitro_service import nitro_service
 from nssrc.com.citrix.netscaler.nitro.exception.nitro_exception import nitro_exception
@@ -16,8 +19,19 @@ def checkfile(filename):
     sys.exit("File %s does not exist" % filename)
   return filename
 
-def uploadfile(filename):
-  print("Uploading file: %s" %filename)
+def uploadfile(srcfile,dstfile):
+  print("Uploading file: %s" %dstfile)
+  f = systemfile()
+  f.filename = dstfile
+  f.filelocation = '/nsconfig/ssl/snicerts/'
+  with open(srcfile,'r') as filecont:
+      f.filecontent = base64.b64encode(filecont.read())
+
+  try:
+    systemfile.add(session,f)
+  except nitro_exception as  e:
+    print("Exception::errorcode="+str(e.errorcode)+",message="+ e.message)
+
 
 def logout():
   print("Logging out")
@@ -48,9 +62,9 @@ def main(arguments):
   args = parser.parse_args(arguments)
 
   configfile= checkfile(args.config)
-  keyfile = checkfile(args.keyfile)
-  cert = checkfile(args.certfile)
   url = args.url
+  keyfile = checkfile(args.keyfile)
+  certfile = checkfile(args.certfile)
 
   config = ConfigParser.ConfigParser()
   config.read(configfile)
@@ -60,6 +74,10 @@ def main(arguments):
   password = config.get('default','ns_password')
   global session
   session = connect(nsip,username,password)
+
+  ###TODO Verify cert & key are valid
+  uploadfile(keyfile,"%s.key" %url)
+  uploadfile(certfile,"%s.cert" %url)
 
 
 
