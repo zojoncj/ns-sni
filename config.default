@@ -1,5 +1,6 @@
 [default]
 debug = True
-ns_ip = 0.0.0.0
-ns_username = xxxxxxx
-ns_password = xxxxxxx
+ns_ip = 
+ns_username = 
+ns_password = 
+cs_vserver = 
