@@ -1,3 +1,5 @@
 config
 *.sw*
 *.pyc
+*.cert
+*.key
