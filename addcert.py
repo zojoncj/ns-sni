@@ -107,9 +107,9 @@ def main(arguments):
   session = connect(nsip,username,password)
 
   ###TODO Verify cert & key are valid
-  #uploadfile(keyfile,keyfilename)
-  #uploadfile(certfile,certfilename)
-  #create_certkey(url,keyfilename,certfilename)
+  uploadfile(keyfile,keyfilename)
+  uploadfile(certfile,certfilename)
+  create_certkey(url,keyfilename,certfilename)
   bind_certkey(url)
 
 
